@@ -7,7 +7,7 @@ DATE=$(date)
 LOGFILE="/var/log/byonlog.$PID.log"
 DIR="/home/byon-workspace"
 AGENTURL="https://proactive-node-agent.s3.eu-west-3.amazonaws.com/activeeon_enterprise-node-linux-x64-13.1.0-SNAPSHOT.zip"
-AGENTFILE="activeeon_enterprise-node-linux-x64-13.1.0-SNAPSHOT.zip"
+AGENTFILE="activeeon_enterprise-node-linux-x64-13.1.0-SNAPSHOT"
 AGENTDIR="/opt"
 AGENTDIRNAME="ProActive_node_agent"
 
