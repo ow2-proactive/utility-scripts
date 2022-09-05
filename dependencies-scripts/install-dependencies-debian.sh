@@ -76,11 +76,11 @@ sudo docker -v || { log_print ERROR "Docker installation failed!"; exit $EXITCOD
 
 # Check if python3 is installed
 log_print INFO "Installing python3"
-python3 -V || { log_print WARN "python3 was installed => installing now!"; sudo apt install -y python3; INS = 1; }
+python3 -V || { log_print WARN "python3 was not installed => installing now!"; sudo apt install -y python3; INS = 1; }
 if [ $INS -eq 1 ]; then python3 -V || { log_print ERROR "Unable to install python3!"; exit $EXITCODE; }; fi
 
 # Set python3 as python
-sudo apt install python-is-python3 && python -V || log_print WARN "Could not set python as python3";
+sudo apt install -y python-is-python3 && python -V || log_print WARN "Could not set python as python3";
 
 if [ ! -z "$(diff <( python3 -V ) <( python -V))" ]; then log_print WARN "pyhton is not python3"; fi
 
