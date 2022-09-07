@@ -85,6 +85,10 @@ Check_lock
 
 newline "USEFUL PACKAGES"
 
+# Install software-properties-common
+log_print INFO "Installing software-properties-common"
+sudo apt-get install -y software-properties-common || log_print WARN "software-properties-common installation failed!"
+
 # Install curl
 log_print INFO "Installing curl"
 sudo apt-get install -y curl || log_print WARN "curl installation failed!"
@@ -94,9 +98,11 @@ log_print INFO "Installing net-tools"
 sudo apt-get install -y net-tools || log_print WARN "net-tools installation failed!"
 
 # Install x11vnc
-log_print INFO "Installing x11vnc"
-sudo apt-get install -y x11vnc || log_print WARN "x11vnc installation failed!"
-
+log_print INFO "Installing vnc4server"
+REPO=1
+sudo apt-add-repository "deb http://cn.archive.ubuntu.com/ubuntu/ bionic universe" || { log_print WARN "vnc4server repo failed!"; REPO=0;}
+if [ $REPO -eq 1 ];then sudo apt-get install -y vnc4server || log_print WARN "x11vnc installation failed!"; fi
+sudo apt-add-repository --remove "deb http://cn.archive.ubuntu.com/ubuntu/ bionic universe"
 
 newline "DOCKER"
 # Install Docker
@@ -156,7 +162,7 @@ log_print INFO "Listing installed versions"
 
 log_print INFO "curl version: $(curl -V | head -n 1 | cut -d" " -f2)"
 log_print INFO "net-tools version: $(apt list 2>&1 | grep "net-tools" | grep -v -e "ddnet" | cut -d " " -f 2)"
-log_print INFO "x11vnc version: $(apt list 2>&1 | grep  x11vnc | cut -d" " -f2)"
+log_print INFO "vnc4server version: $(apt list 2>&1 | grep  vnc4server | cut -d" " -f2)"
 log_print INFO "docker version: $(docker -v | head -n 1 | cut -d" " -f3 | sed 's/,//') "
 log_print INFO "python3 version: $(python3 -V | cut -d " " -f 2)"
 log_print INFO "pip3 version: $(pip3 -V | head -n 1 | cut -d" " -f 2)"
