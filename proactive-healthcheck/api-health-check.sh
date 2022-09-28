@@ -3,9 +3,9 @@
 
 #input parameters
 #username to connect to the ProActive Portals
-username=changeme
+username=boussaa
 #password of the user connecting to the ProActive Portals
-proactiveAdminPasswordDecrypted=changeme
+proactiveAdminPasswordDecrypted=ProActive123
 #server DNS name or public IP
 serverDNSName=try.activeeon.com
 #server Port
@@ -14,6 +14,8 @@ webPort=8443
 webProtocol=https
 #name of one of the node sources, needed in a test to get its description
 nsName=local
+#timeout in seconds to check free nodes, job submission, and job status
+timeoutInSeconds=120
 
 #set colors for printf state of services
 RED='\033[0;31m'
@@ -29,18 +31,8 @@ SUCCESS=0
 #complete ProActive server web URL
 URL="${webProtocol}://${serverDNSName}:${webPort}"
 
-#function used by tests to check the returned status and print messages
-check_endpoint() {
-  endpoint=$1
-  message=$2
-  if [ "$endpoint" == "200" ]; then
-    echo -e "${GREEN} OK ${message}"
-    ((SUCCESS++))
-  else
-    echo -e "${RED} NOK ${message}"
-    ((FAIL++))
-  fi
-}
+#tracks the number of seconds that have passed since the tests were started
+SECONDS=0
 
 #get the session id, needed for all tests
 endpoint=$(curl -o - -d "username=${username}&password=${proactiveAdminPasswordDecrypted}" --write-out "\n%{http_code}\n" --silent --output /dev/null ${URL}/rest/scheduler/login)
@@ -58,28 +50,63 @@ else
   exit 1
 fi
 
+#function used by tests to check the returned status and print messages
+check_endpoint() {
+  endpoint=$1
+  message=$2
+  if [ "$endpoint" == "200" ]; then
+    echo -e "${GREEN} OK ${message}"
+    ((SUCCESS++))
+  else
+    echo -e "${RED} NOK ${message}"
+    ((FAIL++))
+  fi
+}
+
 #wait until a node becomes free before starting the tests
+counter=0
 nodeState=""
 until [[ $nodeState == "FREE" ]]; do
   monitoring=$(curl -G --header "sessionid:$sessionid" --silent "$URL/rest/rm/monitoring/")
-  nodeEvent=$(echo $monitoring | jq -r '.nodesEvents[0]')
-  nodeState=$(echo $nodeEvent | jq -r '.nodeState')
+  nodeEvent=$(echo $monitoring | jq -r ".nodesEvents[0]")
+  nodeState=$(echo $nodeEvent | jq -r ".nodeState")
+  sleep 1
+  ((counter++))
+  if [ "$counter" == "$timeoutInSeconds" ]; then
+    echo -e "${RED} Timeout $NC: No FREE nodes are available"
+    exit 1
+    fi
 done
 
 #wait until the basic-exmaples are loaded, to submit a job for test
+counter=0
 jobid=""
+message="$NC: ${PURPLE}(POST: scheduler/jobs)$NC SUBMIT A JOB"
 until [[ (! -z $jobid) && ($jobid != "null") ]]; do
   endpoint=$(curl -X POST -H "link:$URL/catalog/buckets/basic-examples/resources/Native_Task/raw" --silent -H "sessionid:$sessionid" "$URL/rest/scheduler/jobs")
   jobid=$(echo $endpoint | jq -r '.id')
+    sleep 1
+    ((counter++))
+    if [ "$counter" == "$timeoutInSeconds" ]; then
+      check_endpoint 404 "$message"
+      echo -e "${RED} Timeout $NC: Job submission exceeded the timeout"
+      exit 1
+      fi
 done
-message="$NC: ${PURPLE}(POST: scheduler/jobs)$NC SUBMIT A JOB"
 check_endpoint 200 "$message"
 
 #wait until the submitted job reaches the FINISHED state
 status=""
+counter=0
 until [[ $status == "FINISHED" ]]; do
   endpoint=$(curl -G --header "sessionid:$sessionid" --silent "$URL/rest/scheduler/jobs/$jobid/")
   status=$(echo $endpoint | jq -r '.jobInfo.status')
+    sleep 1
+    ((counter++))
+    if [ "$counter" == "$timeoutInSeconds" ]; then
+      echo -e "${RED} Timeout $NC: The submitted job did not reach the 'FINISHED' state"
+      exit 1
+      fi
 done
 
 #start calling ProActive GET endpoints
@@ -567,7 +594,10 @@ endpoint=$(curl -X DELETE "$URL/rest/scheduler/jobs?jobsid=$jobid" --header "ses
 message="$NC: ${PURPLE}(DELETE: scheduler/jobs/)$NC DELETE ONE OR MORE JOBS BY IDS"
 check_endpoint "$endpoint" "$message"
 
+duration=$SECONDS
+
 echo "--------------------------------------------------------------"
+echo "Elapsed time: $(($duration / 60)) minutes and $(($duration % 60)) seconds."
 echo "Total tests: $(($SUCCESS + $FAIL))"
 echo -e "${GREEN}Passed tests: "$SUCCESS $NC
 echo -e "${RED}Failed tests: "$FAIL $NC
