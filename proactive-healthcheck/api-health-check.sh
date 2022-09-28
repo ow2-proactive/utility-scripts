@@ -3,9 +3,9 @@
 
 #input parameters
 #username to connect to the ProActive Portals
-username=boussaa
+username=changeme
 #password of the user connecting to the ProActive Portals
-proactiveAdminPasswordDecrypted=ProActive123
+proactiveAdminPasswordDecrypted=changeme
 #server DNS name or public IP
 serverDNSName=try.activeeon.com
 #server Port
