@@ -54,7 +54,7 @@ fi
 check_endpoint() {
   endpoint=$1
   message=$2
-  if [ "$endpoint" == "200" ]; then
+  if [[ "$endpoint" == "200" || "$endpoint" == "201" ]]; then
     echo -e "${GREEN} OK ${message}"
     ((SUCCESS++))
   else
