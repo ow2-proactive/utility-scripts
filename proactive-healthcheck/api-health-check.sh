@@ -1,6 +1,7 @@
 #!/bin/bash
 #set -x
 
+
 #input parameters
 #username to connect to the ProActive Portals
 username=<CHANGE_ME>
@@ -33,6 +34,12 @@ URL="${webProtocol}://${serverDNSName}:${webPort}"
 
 #tracks the number of seconds that have passed since the tests were started
 SECONDS=0
+
+#check if jq is installed
+if ! which jq >/dev/null 2>&1; then
+  echo -e "${RED} ERROR $NC: 'jq' is not installed on this computer and is required by the ProActive health-check script."
+  exit 1
+fi
 
 #get the session id, needed for all tests
 endpoint=$(curl -o - -d "username=${username}&password=${proactiveAdminPasswordDecrypted}" --write-out "\n%{http_code}\n" --silent --output /dev/null ${URL}/rest/scheduler/login)
@@ -75,7 +82,7 @@ until [[ $nodeState == "FREE" ]]; do
   if [ "$counter" == "$endpointChecks" ]; then
     echo -e "${RED} Timeout $NC: No FREE nodes are available"
     exit 1
-    fi
+  fi
 done
 
 #wait until the basic-exmaples are loaded, to submit a job for test
@@ -85,13 +92,13 @@ message="$NC: ${PURPLE}(POST: scheduler/jobs)$NC SUBMIT A JOB"
 until [[ (! -z $jobid) && ($jobid != "null") ]]; do
   endpoint=$(curl -X POST -H "link:$URL/catalog/buckets/basic-examples/resources/Native_Task/raw" --silent -H "sessionid:$sessionid" "$URL/rest/scheduler/jobs")
   jobid=$(echo $endpoint | jq -r '.id')
-    sleep 1
-    ((counter++))
-    if [ "$counter" == "$endpointChecks" ]; then
-      check_endpoint 404 "$message"
-      echo -e "${RED} Timeout $NC: The job cannot be submitted"
-      exit 1
-      fi
+  sleep 1
+  ((counter++))
+  if [ "$counter" == "$endpointChecks" ]; then
+    check_endpoint 404 "$message"
+    echo -e "${RED} Timeout $NC: The job cannot be submitted"
+    exit 1
+  fi
 done
 check_endpoint 200 "$message"
 
@@ -101,12 +108,12 @@ counter=0
 until [[ $status == "FINISHED" ]]; do
   endpoint=$(curl -G --header "sessionid:$sessionid" --silent "$URL/rest/scheduler/jobs/$jobid/")
   status=$(echo $endpoint | jq -r '.jobInfo.status')
-    sleep 1
-    ((counter++))
-    if [ "$counter" == "$endpointChecks" ]; then
-      echo -e "${RED} Timeout $NC: The submitted job did not reach the 'FINISHED' state"
-      exit 1
-      fi
+  sleep 1
+  ((counter++))
+  if [ "$counter" == "$endpointChecks" ]; then
+    echo -e "${RED} Timeout $NC: The submitted job did not reach the 'FINISHED' state"
+    exit 1
+  fi
 done
 
 #start calling ProActive GET endpoints
@@ -601,4 +608,3 @@ echo "Elapsed time: $(($duration / 60)) minutes and $(($duration % 60)) seconds.
 echo "Total tests: $(($SUCCESS + $FAIL))"
 echo -e "${GREEN}Passed tests: "$SUCCESS $NC
 echo -e "${RED}Failed tests: "$FAIL $NC
-
