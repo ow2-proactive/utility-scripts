@@ -14,8 +14,8 @@ webPort=8443
 webProtocol=https
 #name of one of the node sources, needed in a test to get its description
 nsName=local
-#timeout in seconds to check free nodes, job submission, and job status
-timeoutInSeconds=120
+#number of attempts to check free nodes, job submission, and job status
+endpointChecks=120
 
 #set colors for printf state of services
 RED='\033[0;31m'
@@ -72,7 +72,7 @@ until [[ $nodeState == "FREE" ]]; do
   nodeState=$(echo $nodeEvent | jq -r ".nodeState")
   sleep 1
   ((counter++))
-  if [ "$counter" == "$timeoutInSeconds" ]; then
+  if [ "$counter" == "$endpointChecks" ]; then
     echo -e "${RED} Timeout $NC: No FREE nodes are available"
     exit 1
     fi
@@ -87,9 +87,9 @@ until [[ (! -z $jobid) && ($jobid != "null") ]]; do
   jobid=$(echo $endpoint | jq -r '.id')
     sleep 1
     ((counter++))
-    if [ "$counter" == "$timeoutInSeconds" ]; then
+    if [ "$counter" == "$endpointChecks" ]; then
       check_endpoint 404 "$message"
-      echo -e "${RED} Timeout $NC: Job submission exceeded the timeout"
+      echo -e "${RED} Timeout $NC: The job cannot be submitted"
       exit 1
       fi
 done
@@ -103,7 +103,7 @@ until [[ $status == "FINISHED" ]]; do
   status=$(echo $endpoint | jq -r '.jobInfo.status')
     sleep 1
     ((counter++))
-    if [ "$counter" == "$timeoutInSeconds" ]; then
+    if [ "$counter" == "$endpointChecks" ]; then
       echo -e "${RED} Timeout $NC: The submitted job did not reach the 'FINISHED' state"
       exit 1
       fi
