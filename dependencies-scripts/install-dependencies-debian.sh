@@ -13,15 +13,12 @@ DATE=$(date)
 LOGFILE="/var/log/install-dependencies.$PID.log"
 
 # Set up the Singularity and VNC flags
-SINGULARUTY_INSTALL="false"
+SINGULARITY_INSTALL="false"
 VNC_INSTALL="false"
 
 # Set up the logging for the script
 sudo touch $LOGFILE
-sudo chown $USER:$USER $LOGFILE  v)
-    VNC_INSTALL="true"
-    ;;
-
+sudo chown $USER:$USER $LOGFILE
 
 # All the output of this shell script is redirected to the LOGFILE
 exec 3>&1 4>&2
@@ -93,7 +90,7 @@ while getopts :svx: opt_char
 do
   case $opt_char in
   s)
-    SINGULARUTY_INSTALL="true"
+    SINGULARITY_INSTALL="true"
     ;;
   v)
     VNC_INSTALL="true"
@@ -106,7 +103,7 @@ do
   esac
 done
 
-log_print INFO "The SINGULARUTY_INSTALL flag is set to: $SINGULARUTY_INSTALL"
+log_print INFO "The SINGULARITY_INSTALL flag is set to: $SINGULARITY_INSTALL"
 log_print INFO "The VNC_INSTALL flag is set to: $VNC_INSTALL"
 
 newline "APT"
@@ -194,9 +191,9 @@ pip3 install wget || { log_print ERROR "wget installation failed!"; exit $EXITCO
 
 
 # Install singularity if required
-if [ "$SINGULARUTY_INSTALL" = "true" ]; then
+if [ "$SINGULARITY_INSTALL" = "true" ]; then
 
-	newline "SINGULARUTY DEPENDENCIES"
+	newline "SINGULARITY DEPENDENCIES"
 
 	# Install build-essential
 	log_print INFO "Installing build-essential"
@@ -235,7 +232,7 @@ if [ "$SINGULARUTY_INSTALL" = "true" ]; then
 	log_print INFO "Installing golang"
 	sudo apt-get install -y golang-go || log_print ERROR "golang installation failed!"
 
-	newline "SINGULARUTY"
+	newline "SINGULARITY"
 
 	# Define the links and variables 
 	SING_TEMP="/tmp/singularity"
@@ -297,7 +294,7 @@ log_print INFO "requests version: $(pip3 list --format freeze | grep requests | 
 log_print INFO "urllib3 version: $(pip3 list --format freeze | grep urllib3 | cut -d "=" -f3)"
 log_print INFO "wget version: $(pip3 list --format freeze | grep wget | cut -d "=" -f3)"
 
-if [ "$SINGULARUTY_INSTALL" = "true" ]; then
+if [ "$SINGULARITY_INSTALL" = "true" ]; then
 log_print INFO "golang version: $(go version | cut -d" " -f 3)"
 log_print INFO "singularity version: $(singularity version)"
 log_print INFO "build-essential version: $(apt list 2>&1 | grep "build-essential" | head -n 1 | cut -d " " -f 2)"
