@@ -306,6 +306,7 @@ if [ "$VNC_INSTALL" = "true" ]; then
 			REPO=1
 			sudo apt-add-repository --yes "deb http://archive.ubuntu.com/ubuntu/ bionic universe" || { log_print WARN "vnc4server repo failed!"; REPO=0;}
 			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32 || { log_print WARN "vnc4server repo failed!"; REPO=0;}
+			sudo apt-get update
 			if [ $REPO -eq 1 ];then sudo apt-get install -y vnc4server || log_print WARN "x11vnc installation failed!"; fi
 			sudo apt-add-repository --remove "deb http://archive.ubuntu.com/ubuntu/ bionic universe"
 			sudo apt-get update
@@ -322,6 +323,7 @@ if [ "$VNC_INSTALL" = "true" ]; then
 			REPO=1
 			sudo apt-add-repository --yes "deb http://cn.archive.ubuntu.com/ubuntu/ bionic universe" || { log_print WARN "vnc4server repo failed!"; REPO=0;}
 			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32 || { log_print WARN "vnc4server repo failed!"; REPO=0;}
+			sudo apt-get update
 			if [ $REPO -eq 1 ];then sudo apt-get install -y vnc4server || log_print WARN "x11vnc installation failed!"; fi
 			sudo apt-add-repository --remove "deb http://cn.archive.ubuntu.com/ubuntu/ bionic universe"
 			sudo apt-get update
