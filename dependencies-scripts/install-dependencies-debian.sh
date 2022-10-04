@@ -16,6 +16,9 @@ LOGFILE="/var/log/install-dependencies.$PID.log"
 SINGULARITY_INSTALL="false"
 VNC_INSTALL="false"
 
+# Get the OS disribution and release
+RELS=$(lsb_release -rs)
+DIST=$(lsb_release -is)$RELS
 # Set up the logging for the script
 sudo touch $LOGFILE
 sudo chown $USER:$USER $LOGFILE
@@ -43,6 +46,7 @@ log_print(){
 newline(){
 	Message=$1
 	n=${#Message}
+	if [ -z "$COLUMNS" ]; then COLUMNS=100; fi
 	DL=$COLUMNS
 	num=$(expr $DL - $n - 4)
 	reminder=$(expr $num % 2)
@@ -81,6 +85,16 @@ newline "STARTED"
 # Start the Configuration
 log_print INFO "Configuration started!"
 log_print INFO "Logs are saved at: $LOGFILE"
+
+case $DIST in
+	"Ubuntu18.04" | "Ubuntu20.04" | "Ubuntu22.04" | "Debian10" | "Debian11")
+		log_print INFO "The OS Distribution and Release: $DIST"
+		;;
+  *)
+    log_print INFO "The OS Distribution and Release: $DIST"
+    log_print WARN "The OS Distribution $DIST is not supported"
+    ;;
+esac
 
 newline "FLAGS"
 # Setting the getopts
@@ -230,10 +244,32 @@ if [ "$SINGULARITY_INSTALL" = "true" ]; then
 	newline "GOLANG"
 	# Install golang
 	log_print INFO "Installing golang"
-	sudo apt-get install -y golang-go || log_print ERROR "golang installation failed!"
+
+	# golang version variables
+	VERSION=1.18.1
+	OS=linux
+	ARCH=amd64
+	GO_TEMP="/tmp/go"
+	GO_TAR_URL="https://dl.google.com/go/go${VERSION}.${OS}-${ARCH}.tar.gz"
+	GO_TAR_NAME="golang.tar.gz"
+
+	# sudo apt-get install -y golang-go || log_print ERROR "golang installation failed!"
+	if [ -d "/usr/local/go" ]; then sudo rm -r /usr/local/go; fi
+	if [ -d "$GO_TEMP" ]; then sudo rm -r $GO_TEMP; fi
+	mkdir $GO_TEMP
+
+	log_print INFO "Downloading golang"
+	sudo wget -O $GO_TEMP/$GO_TAR_NAME $GO_TAR_URL || log_print ERROR "Failed downloading golang tar!"
+	log_print INFO "Extracting golang"
+	sudo tar --directory=/usr/local -xzvf $GO_TEMP/$GO_TAR_NAME || log_print ERROR "Failed extracting golang tar!"
+	log_print INFO "Exporting golang"
+	echo 'export GOPATH=${HOME}/go' >> ~/.bashrc
+	echo 'export PATH=/usr/local/go/bin:${PATH}:${GOPATH}/bin' >> ~/.bashrc
+	source ~/.bashrc
+	export GOPATH=${HOME}/go
+	export PATH=/usr/local/go/bin:${PATH}:${GOPATH}/bin
 
 	newline "SINGULARITY"
-
 	# Define the links and variables 
 	SING_TEMP="/tmp/singularity"
 	SING_TAR_URL="https://github.com/singularityware/singularity/releases/download/v3.5.3/singularity-3.5.3.tar.gz"
@@ -241,13 +277,7 @@ if [ "$SINGULARITY_INSTALL" = "true" ]; then
 
 	mkdir $SING_TEMP || log_print ERROR "Failed creating a tmp dir for singularity failed!"
 
-	# GO_TAR_URL="https://dl.google.com/go/go1.13.linux-amd64.tar.gz"
-	# GO_TAR_NAME="golang.tar.gz"
-	# wget -O $SING_TEMP/$GO_TAR_NAME $GO_TAR_URL || log_print ERROR "Failed downloading golang tar!"
-	# sudo tar --directory=/usr/local -xzvf $SING_TEMP/$GO_TAR_NAME || log_print ERROR "Failed extracting golang tar!"
-	# echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.bashrc
-	# source ~/.bashrc
-	# export PATH=$PATH:/usr/local/go/bin
+
 	log_print INFO "Downloading singularity"
 	wget -O $SING_TEMP/$SING_TAR_NAME $SING_TAR_URL || log_print ERROR "Failed downloading singularity tar!"
 	log_print INFO "Extracting singularity"
@@ -269,14 +299,35 @@ fi
 # Install vnc if required
 if [ "$VNC_INSTALL" = "true" ]; then
 	newline "VNC"
-	# Install vnc4server
-	log_print INFO "Installing vnc4server"
-	REPO=1
-	sudo apt-add-repository "deb http://cn.archive.ubuntu.com/ubuntu/ bionic universe" || { log_print WARN "vnc4server repo failed!"; REPO=0;}
-	if [ $REPO -eq 1 ];then sudo apt-get install -y vnc4server || log_print WARN "x11vnc installation failed!"; fi
-	sudo apt-add-repository --remove "deb http://cn.archive.ubuntu.com/ubuntu/ bionic universe"
-	sudo apt-get update
-fi
+	case $DIST in
+		"Ubuntu20.04" | "Ubuntu22.04" | "Debian10" | "Debian11")
+			# Install vnc4server
+			log_print INFO "Installing vnc4server"
+			REPO=1
+			sudo apt-add-repository --yes "deb http://archive.ubuntu.com/ubuntu/ bionic universe" || { log_print WARN "vnc4server repo failed!"; REPO=0;}
+			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32 || { log_print WARN "vnc4server repo failed!"; REPO=0;}
+			if [ $REPO -eq 1 ];then sudo apt-get install -y vnc4server || log_print WARN "x11vnc installation failed!"; fi
+			sudo apt-add-repository --remove "deb http://archive.ubuntu.com/ubuntu/ bionic universe"
+			sudo apt-get update
+		;;
+		"Ubuntu18.04")
+			# Install vnc4server
+			log_print INFO "Installing vnc4server"
+			sudo apt-get install -y vnc4server || log_print WARN "x11vnc installation failed!"
+		;;
+		*)
+			# Install vnc4server
+			log_print INFO "Installing vnc4server"
+			log_print WARN "This operation may fail due to the distribution $DIST"
+			REPO=1
+			sudo apt-add-repository --yes "deb http://cn.archive.ubuntu.com/ubuntu/ bionic universe" || { log_print WARN "vnc4server repo failed!"; REPO=0;}
+			sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32 || { log_print WARN "vnc4server repo failed!"; REPO=0;}
+			if [ $REPO -eq 1 ];then sudo apt-get install -y vnc4server || log_print WARN "x11vnc installation failed!"; fi
+			sudo apt-add-repository --remove "deb http://cn.archive.ubuntu.com/ubuntu/ bionic universe"
+			sudo apt-get update
+		;;
+	esac
+	fi
 
 
 newline "VERSIONS"
