@@ -92,13 +92,13 @@ sudo apt-mark hold kubeadm kubelet kubectl
 # Checking for the installiation versions
 log_print INFO "Checking Kubernetes versions"
 
-kubeadm version     || { log_print ERROR "Docker installation failed!"; exit $EXITCODE; }
+kubeadm version     || { log_print ERROR "kubeadm installation failed!"; exit $EXITCODE; }
 kubectl version
 if [ $? -gt 1 ]
 then
-	log_print ERROR "Docker installation failed!"; exit $EXITCODE;
+	log_print ERROR "kubectl installation failed!"; exit $EXITCODE;
 fi
-kubelet --version   || { log_print ERROR "Docker installation failed!"; exit $EXITCODE; }
+kubelet --version   || { log_print ERROR "kubelet installation failed!"; exit $EXITCODE; }
 
 
 # Turn off the swap momery
