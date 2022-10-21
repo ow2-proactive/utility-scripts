@@ -46,13 +46,13 @@ log_print INFO "Checking the user"
 echo "HOME: $(pwd), USER: $(id -u -n)"
 
 log_print INFO "Setting the kubeconfig file"
-mkdir -p ~/.kube && sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config && sudo chown $(id -u):$(id -g) ~/.kube/config
+mkdir -p ~/.kube && sudo cp /etc/kubernetes/admin.conf ~/.kube/config && sudo chown $(id -u):$(id -g) ~/.kube/config
 id -u ubuntu &> /dev/null
 
 if [[ $? -eq 0 ]]
 then
 #USER ubuntu is found
-mkdir -p /home/ubuntu/.kube && sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config && sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
+mkdir -p /home/ubuntu/.kube && sudo cp /etc/kubernetes/admin.conf /home/ubuntu/.kube/config && sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
 else
 # to be changed soon 
 log_print ERROR "USER ubuntu is not found"
