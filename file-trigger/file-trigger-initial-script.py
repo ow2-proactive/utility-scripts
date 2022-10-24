@@ -1,3 +1,5 @@
+#The script is used as a template script that a user can adapt to create a file event-Based trigger workflow
+
 from os import listdir
 from os.path import isfile, join
 import time
