@@ -1,0 +1,16 @@
+{
+  "serverConfiguration": {
+    "archiveLocation": "https://www.activeeon.com/public_content/7cde3381417ff3784639dc41fa7e7cd0544a5234-morphemic-7bulls/activeeon_enterprise-pca_server-linux-x64-12.0.6-E1.zip",
+    "libraries": "rsync,wget,curl,zip,unzip,sshpass,openssl,gpg,passwd",
+    "installationDirectory": "/opt/proactive",
+    "systemUser": "proactive",
+    "systemUserGroup": "proactive",
+    "systemUserPassword": "jA0ECQMC1gsezE+Uv8r/0j4BY3yvRSch5Dybf00VUKYQLlhJIHlvoL3xE+LA2mbS6zP/R2qO7eBjPQJRPEaB4WQdFb+DTB7l914j8FHU4A==",
+    "networkProtocol": "pamr",
+    "webProtocol": "http",
+    "webPort": "8880",
+    "historyPeriodDays": "30",
+    "proactiveAdminPassword": "jA0ECQMC5RrG8XSumF7/0joBqjXeVVFIG+BdrtJGRBORhkArhdFzbs/QxODnMNVJSZjEoHqDBUq4rh1h1IhvW91HnZzvUvKWNQXh",
+    "localNodes": "4"
+  }
+}
