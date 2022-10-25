@@ -311,10 +311,10 @@ then
   sed -e "s/^SINGLE_JVM=.*/SINGLE_JVM=true/g" -i "${PROACTIVE_DEFAULT}/tools/proactive-scheduler"
 fi
 
-if [[ "$OS" == "Debian" ]]
-then
-  tail -n +5 "${PROACTIVE_DEFAULT}/tools/proactive-scheduler" >"${PROACTIVE_DEFAULT}/tools/proactive-scheduler.tmp"
-  echo '#!/bin/bash
+newline "SERVICE"
+log_print INFO "Creating the linux service"
+tail -n +5 "${PROACTIVE_DEFAULT}/tools/proactive-scheduler" >"${PROACTIVE_DEFAULT}/tools/proactive-scheduler.tmp"
+echo '#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          proactive-scheduler
 # Required-Start:    $all
@@ -323,9 +323,8 @@ then
 # Default-Stop:      0 1 6
 ### END INIT INFO
  ' >"${PROACTIVE_DEFAULT}/tools/proactive-scheduler"
-  cat "${PROACTIVE_DEFAULT}/tools/proactive-scheduler.tmp" >>"${PROACTIVE_DEFAULT}/tools/proactive-scheduler"
-  rm "${PROACTIVE_DEFAULT}/tools/proactive-scheduler.tmp"
-fi
+cat "${PROACTIVE_DEFAULT}/tools/proactive-scheduler.tmp" >>"${PROACTIVE_DEFAULT}/tools/proactive-scheduler"
+rm "${PROACTIVE_DEFAULT}/tools/proactive-scheduler.tmp"
 
 cp "${PROACTIVE_DEFAULT}/tools/proactive-scheduler" /etc/init.d/
 
@@ -342,14 +341,8 @@ TimeoutSec=0
 ' >/etc/systemd/system/proactive-scheduler.service.d/timeout.conf
 
 chown -R $systemUser:$systemUserGroup /var/log/proactive
-
-if [[ "$OS" == "RedHat" ]]
-then
-  chkconfig proactive-scheduler on
-elif [[ "$OS" == "Debian" ]]
-then
-  update-rc.d proactive-scheduler defaults
-fi
+log_print INFO "Updating the rc"
+update-rc.d proactive-scheduler defaults
 
 newline "SERVER"
 log_print INFO "Starting the ProActive Server..."
