@@ -1,0 +1,64 @@
+{
+  "serverConfiguration": {
+    "archiveLocation": "LINK_TO_PROACTIVE_ZIP",
+    "passphrase": "changeme",
+    "libraries": "rsync,wget,curl,zip,unzip,sshpass,openssl,gpg,passwd",
+    "installationDirectory": "/opt/proactive",
+    "systemUser": "proactive",
+    "systemUserGroup": "proactive",
+    "systemUserPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
+    "networkProtocol": "pamr",
+    "webProtocol": "https",
+    "webPort": "8443",
+    "historyPeriodDays": "60",
+    "serverDNSName": "XX.XX.XX.XX",
+    "certificatePath": "/absolut/path/to/proactive.crt",
+    "certificateKeyPath": "/absolut/path/to/proactive.key",
+    "certificateKeyStorePassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
+    "proactiveAdminPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
+    "localNodes": "0",
+    "addExternalNodeSources": "true"
+  },
+  "nodesConfiguration": [
+    {
+      "name": "twoHostsSSH",
+      "type": "ssh",
+      "hosts": [
+        {
+          "hostnameOrIpAddress": "XX.XX.XX.XX",
+          "nodesNumber": "1"
+        },
+        {
+          "hostnameOrIpAddress": "XX.XX.XX.XX",
+          "nodesNumber": "1"
+        }
+      ],
+      "osFamily": "debian",
+      "sshUserName": "activeeon",
+      "sshPassword": "jA0ECQMCVVNivdksiTPr0j0B+nNqpzErtOjB8qTT3AMnxyzPamxodofweOtMVrexh7LtrpPC+51VBgQYYVQLLckemZnYH309xHJG+qr8",
+      "sudoUser": "activeeon",
+      "sudoUserPassword": "jA0ECQMCVVNivdksiTPr0j0B+nNqpzErtOjB8qTT3AMnxyzPamxodofweOtMVrexh7LtrpPC+51VBgQYYVQLLckemZnYH309xHJG+qr8",
+      "libraries": "python3,python3-pip",
+      "python3Modules": "py4j",
+      "additionalInstallationCommand": "echo 'test'"
+    },
+    {
+      "name": "oneHostSSH",
+      "type": "ssh",
+      "hosts": [
+        {
+          "hostnameOrIpAddress": "XX.XX.XX.XX",
+          "nodesNumber": "1"
+        }
+      ],
+      "osFamily": "debian",
+      "sshUserName": "activeeon",
+      "sshPassword": "jA0ECQMCVVNivdksiTPr0j0B+nNqpzErtOjB8qTT3AMnxyzPamxodofweOtMVrexh7LtrpPC+51VBgQYYVQLLckemZnYH309xHJG+qr8",
+      "sudoUser": "activeeon",
+      "sudoUserPassword": "jA0ECQMCVVNivdksiTPr0j0B+nNqpzErtOjB8qTT3AMnxyzPamxodofweOtMVrexh7LtrpPC+51VBgQYYVQLLckemZnYH309xHJG+qr8",
+      "libraries": "python3,python3-pip",
+      "python3Modules": "py4j",
+      "additionalInstallationCommand": "echo 'test'"
+    }
+  ]
+}
