@@ -6,7 +6,7 @@
 # $1 is the passphrase.
 # $2 is the server DNS name or the public ip address.
 # If an error occur, the script will exit with the value of the PID to point at the logfile.
-# Authors: Mohamed Boussa, Ali Jawad FAHS, Activeeon
+# Authors: Mohamed Boussaa, Ali Jawad FAHS, Activeeon
 
 
 # Set up the script variables
@@ -133,6 +133,7 @@ localNodes=$(echo $serverConfig | jq -r '.localNodes')
 log_print INFO "The \"inputConfig.json\" file was loaded successfully!"
 proactiveAdminPasswordDecrypted=$(echo $proactiveAdminPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
 systemUserPasswordDecrypted=$(echo $systemUserPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
+archiveLocation=$(echo $archiveLocation | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
 
 newline "VARIABLES"
 log_print INFO "passphrase is set to: \t\t $passphrase"

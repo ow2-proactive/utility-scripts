@@ -1,6 +1,6 @@
 {
   "serverConfiguration": {
-    "archiveLocation": "https://www.activeeon.com/public_content/7cde3381417ff3784639dc41fa7e7cd0544a5234-morphemic-7bulls/activeeon_enterprise-pca_server-linux-x64-12.0.6-E1.zip",
+    "archiveLocation": "jA0ECQMCY8VJr/rcLQf/0rgBmb3Ed1LAHdLGOKcdiQNulgHc4PqJ7CFV4eA/l12ZCUCcDdBGLfrAa3fZeRaphN9IV7x9fB62d5dOts4PVGKALNP6buZC+Vn+/2QM+WYo4DHqYJ1VUMBUB4Quu+qA+VoxZUAml/XCCJVQPY2nC5Z7Eg9EG9wkfnM3aPUWMZ+lXj8qubYnOL1FyPz8W4BGIG31XwVcnjVFWyAgXlN2HHbp2zImFTuVKb7f99tLD8MKUYPwVdjT1by4",
     "libraries": "rsync,wget,curl,zip,unzip,sshpass,openssl,gpg,passwd",
     "installationDirectory": "/opt/proactive",
     "systemUser": "proactive",
