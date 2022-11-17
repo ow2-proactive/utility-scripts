@@ -9,6 +9,7 @@
 exec 2>/dev/null
 
 ip_valid() {
+  if [ -z "$1" ]; then return 1; fi
   # Set up local variables
   local ip=${1:-1.2.3.4}
   local IFS=.; local -a a=($ip)
