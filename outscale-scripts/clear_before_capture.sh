@@ -105,7 +105,7 @@ log_print INFO "Clear history"
 history -c
 
 
-log_print INFO "Instance cleared, please execute the following commands before capturing the images: \n \"/bin/rm $LOGFILE\" \n \" history -c\" (from all the users you used)"
+log_print INFO "Instance cleared, please execute the following commands before capturing the images: \n\"sudo /bin/rm $LOGFILE\"\n\"history -c\" (from all the users you used)"
 
 newline "FINISHED"
 # Declare configuration done successfully

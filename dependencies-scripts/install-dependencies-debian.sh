@@ -160,6 +160,16 @@ sudo systemctl enable docker
 sudo systemctl status docker
 sudo systemctl start docker
 
+sudo usermod -a -G docker $USER
+
+#Check if user proactive exist and add it to docker group if so
+if id -u "proactive" >/dev/null 2>&1; then
+  echo "user proactive exist"
+  sudo usermod -a -G docker proactive
+else
+  log_print WARN "user proactive does not exist"
+fi
+
 sudo docker -v || { log_print ERROR "Docker installation failed!"; exit $EXITCODE; }
 
 
