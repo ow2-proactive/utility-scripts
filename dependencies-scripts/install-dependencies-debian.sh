@@ -151,6 +151,19 @@ sudo apt-get install -y pkg-config || log_print WARN "pkg-config installation fa
 log_print INFO "Installing git"
 sudo apt-get install -y git || log_print WARN "git installation failed!"
 
+# Install jq
+log_print INFO "Installing git"
+sudo apt-get install -y jq || log_print WARN "jq installation failed!"
+
+# Install zip
+log_print INFO "Installing git"
+sudo apt-get install -y zip || log_print WARN "jq installation failed!"
+
+# Install unzip
+log_print INFO "Installing git"
+sudo apt-get install -y unzip || log_print WARN "jq installation failed!"
+
+
 
 newline "DOCKER"
 # Install Docker
@@ -356,6 +369,9 @@ log_print INFO "cryptography version: $(pip3 list --format freeze | grep cryptog
 log_print INFO "requests version: $(pip3 list --format freeze | grep requests | head -n 1 | cut -d "=" -f3)"
 log_print INFO "urllib3 version: $(pip3 list --format freeze | grep urllib3 | cut -d "=" -f3)"
 log_print INFO "wget version: $(pip3 list --format freeze | grep wget | cut -d "=" -f3)"
+log_print INFO "jq version: $(apt list 2>&1 | grep "jq" | head -n 1 | cut -d " " -f 2)"
+log_print INFO "zip version: $(apt list 2>&1 | grep "zip" | head -n 1 | cut -d " " -f 2)"
+log_print INFO "unzip version: $(apt list 2>&1 | grep "unzip" | head -n 1 | cut -d " " -f 2)"
 
 if [ "$SINGULARITY_INSTALL" = "true" ]; then
 log_print INFO "golang version: $(go version | cut -d" " -f 3)"
