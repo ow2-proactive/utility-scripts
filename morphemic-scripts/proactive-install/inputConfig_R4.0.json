@@ -1,0 +1,16 @@
+{
+  "serverConfiguration": {
+    "archiveLocation": "jA0ECQMCIjct1A08PVP/0r8BSw8B1YlX+IjvKMMx1G8C1r1z2XhtjqvqB+wFab5lSemn1zKuMl6FxMMosUa7DNw1wIVU//Inbdi4Dx6GG0+QlJUtdpqViynny/pZ8hWEBJY0mG8PLvuWj3i+hO/Bd0vbEjoB3wLUaNyFRMNNAZyXvi8N3Uq7H67wB3OYp+l9u0NBXqSj2aRcwySoJ6KeqxwbVhR2xligs+UiP42AdoSRAIQ1PUNH8f1z0wdOPSf4YX08GUE8nUMlsj4mmamNaw==",
+    "libraries": "rsync,wget,curl,zip,unzip,sshpass,openssl,gpg,passwd",
+    "installationDirectory": "/opt/proactive",
+    "systemUser": "proactive",
+    "systemUserGroup": "proactive",
+    "systemUserPassword": "jA0ECQMC1gsezE+Uv8r/0j4BY3yvRSch5Dybf00VUKYQLlhJIHlvoL3xE+LA2mbS6zP/R2qO7eBjPQJRPEaB4WQdFb+DTB7l914j8FHU4A==",
+    "networkProtocol": "pamr",
+    "webProtocol": "http",
+    "webPort": "8880",
+    "historyPeriodDays": "30",
+    "proactiveAdminPassword": "jA0ECQMC5RrG8XSumF7/0joBqjXeVVFIG+BdrtJGRBORhkArhdFzbs/QxODnMNVJSZjEoHqDBUq4rh1h1IhvW91HnZzvUvKWNQXh",
+    "localNodes": "4"
+  }
+}
