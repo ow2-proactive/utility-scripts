@@ -56,6 +56,7 @@ log_print INFO "Logs are saved at: $LOGFILE"
 # Update the package list
 log_print INFO "Updating the package list."
 sudo apt-get update
+sudo unattended-upgrade -d
 
 # Check for lock
 Check_lock
@@ -74,10 +75,17 @@ sudo systemctl start docker
 sudo docker -v || { log_print ERROR "Docker installation failed!"; exit $EXITCODE; }
 
 
+
 # Adding Kubernetes Repo
 log_print INFO "Adding Kubernetes Repo"
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+
+# Check for lock
+Check_lock
 sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main" || { log_print ERROR "Kubernetes repo can't be added!"; exit $EXITCODE; }
+
+# Check for lock
+Check_lock
 
 # Install Kubernetes
 log_print INFO "Installing Kubernetes"
