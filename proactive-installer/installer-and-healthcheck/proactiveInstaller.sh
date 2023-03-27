@@ -27,7 +27,6 @@ log_print() {
   fi
 }
 
-
 log_print INFO "Setting up the OS and Linux package system to be considered..."
 OS=
 PKG_TOOL=
@@ -50,6 +49,7 @@ $PKG_TOOL -y update
 $PKG_TOOL -y install jq
 serverConfig=$(cat inputConfig.json | jq '.serverConfiguration')
 ldapConfig=$(cat inputConfig.json | jq '.ldapConfiguration')
+dbConfig=$(cat inputConfig.json | jq '.dbConfiguration')
 
 #server input
 archiveLocation=$(echo $serverConfig | jq -r '.archiveLocation')
@@ -70,6 +70,7 @@ passphrase=$(echo $serverConfig | jq -r '.passphrase')
 proactiveAdminPassword=$(echo $serverConfig | jq -r '.proactiveAdminPassword')
 localNodes=$(echo $serverConfig | jq -r '.localNodes')
 addExternalNodeSources=$(echo $serverConfig | jq -r '.addExternalNodeSources')
+enableCustomDbConfig=$(echo $serverConfig | jq -r '.enableCustomDbConfig')
 enableLdapConfiguration=$(echo $serverConfig | jq -r '.enableLdapConfiguration')
 
 proactiveAdminPasswordDecrypted=$(echo $proactiveAdminPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
@@ -91,6 +92,52 @@ userRoles=$(echo $ldapConfig | jq -r '.userRoles')
 
 bindPasswordDecrypted=$(echo $bindPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
 testPasswordDecrypted=$(echo $testPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
+
+#DB input
+dbType=$(echo $dbConfig | jq -r '.type')
+dbDriverLocation=$(echo $dbConfig | jq -r '.driverLocation')
+dbApplySchedulerConfigToALL=$(echo $dbConfig | jq -r '.applySchedulerConfigToALL')
+dbSchedulerHostname=$(echo $dbConfig | jq -r '.schedulerDbConfig.hostname')
+dbSchedulerPort=$(echo $dbConfig | jq -r '.schedulerDbConfig.port')
+dbSchedulerUsername=$(echo $dbConfig | jq -r '.schedulerDbConfig.username')
+dbSchedulerPassword=$(echo $dbConfig | jq -r '.schedulerDbConfig.password')
+dbSchedulerDialect=$(echo $dbConfig | jq -r '.schedulerDbConfig.dialect')
+dbSchedulerSchemaName=$(echo $dbConfig | jq -r '.schedulerDbConfig.schemaName')
+dbSchedulerUrl=$(echo $dbConfig | jq -r '.schedulerDbConfig.url')
+dbRmHostname=$(echo $dbConfig | jq -r '.rmDbConfig.hostname')
+dbRmPort=$(echo $dbConfig | jq -r '.rmDbConfig.port')
+dbRmUsername=$(echo $dbConfig | jq -r '.rmDbConfig.username')
+dbRmPassword=$(echo $dbConfig | jq -r '.rmDbConfig.password')
+dbRmDialect=$(echo $dbConfig | jq -r '.rmDbConfig.dialect')
+dbRmSchemaName=$(echo $dbConfig | jq -r '.rmDbConfig.schemaName')
+dbRmUrl=$(echo $dbConfig | jq -r '.rmDbConfig.url')
+dbCatalogHostname=$(echo $dbConfig | jq -r '.catalogDbConfig.hostname')
+dbCatalogPort=$(echo $dbConfig | jq -r '.catalogDbConfig.port')
+dbCatalogUsername=$(echo $dbConfig | jq -r '.catalogDbConfig.username')
+dbCatalogPassword=$(echo $dbConfig | jq -r '.catalogDbConfig.password')
+dbCatalogDialect=$(echo $dbConfig | jq -r '.catalogDbConfig.dialect')
+dbCatalogSchemaName=$(echo $dbConfig | jq -r '.catalogDbConfig.schemaName')
+dbCatalogUrl=$(echo $dbConfig | jq -r '.catalogDbConfig.url')
+dbPsaHostname=$(echo $dbConfig | jq -r '.psaDbConfig.hostname')
+dbPsaPort=$(echo $dbConfig | jq -r '.psaDbConfig.port')
+dbPsaUsername=$(echo $dbConfig | jq -r '.psaDbConfig.username')
+dbPsaPassword=$(echo $dbConfig | jq -r '.psaDbConfig.password')
+dbPsaDialect=$(echo $dbConfig | jq -r '.psaDbConfig.dialect')
+dbPsaSchemaName=$(echo $dbConfig | jq -r '.psaDbConfig.schemaName')
+dbPsaUrl=$(echo $dbConfig | jq -r '.psaDbConfig.url')
+dbNotificationHostname=$(echo $dbConfig | jq -r '.notificationDbConfig.hostname')
+dbNotificationPort=$(echo $dbConfig | jq -r '.notificationDbConfig.port')
+dbNotificationUsername=$(echo $dbConfig | jq -r '.notificationDbConfig.username')
+dbNotificationPassword=$(echo $dbConfig | jq -r '.notificationDbConfig.password')
+dbNotificationDialect=$(echo $dbConfig | jq -r '.notificationDbConfig.dialect')
+dbNotificationSchemaName=$(echo $dbConfig | jq -r '.notificationDbConfig.schemaName')
+dbNotificationUrl=$(echo $dbConfig | jq -r '.notificationDbConfig.url')
+
+dbSchedulerPasswordDecrypted=$(echo $dbSchedulerPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
+dbRmPasswordDecrypted=$(echo $dbRmPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
+dbCatalogPasswordDecrypted=$(echo $dbCatalogPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
+dbPsaPasswordDecrypted=$(echo $dbPsaPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
+dbNotificationPasswordDecrypted=$(echo $dbNotificationPassword | base64 -d | gpg -d --batch --passphrase "$passphrase" --ignore-crc-error --ignore-mdc-error 2>/dev/null)
 
 log_print INFO "Installing the required libraries..."
 for i in ${libraries//,/ }; do
@@ -134,6 +181,79 @@ update_node_jars() {
   (cd ${PROACTIVE_DEFAULT} && zip dist/lib/rm-node-*.jar config/authentication/rm.cred)
   (cd ${PROACTIVE_DEFAULT}/dist && zip war/rest/node.jar lib/rm-node-*.jar)
 }
+
+configure_db() {
+  dbArgs="-c $1 -v $2"
+  hostname=$3
+  port=$4
+  username=$5
+  password=$6
+  dialect=$7
+  schemaName=$8
+  url=$9
+
+  if [ "$url" == "default" ]; then
+    dbArgs=$dbArgs" -H $hostname -P $port -u $username -p $password"
+  else
+    dbArgs=$dbArgs" -U $url -u $username -p $password"
+  fi
+  if [ "$dialect" != "default" ]; then
+    dbArgs=$dbArgs" -D $dialect"
+  fi
+  if [ "$schemaName" != "default" ] && [ "$1" != "all" ] && [ "$2" != "hsqldb" ]; then
+    dbArgs=$dbArgs" -s $schemaName"
+  fi
+
+  $PROACTIVE_DEFAULT/tools/configure-db $dbArgs
+}
+
+if [ "$enableCustomDbConfig" == "true" ]; then
+  log_print INFO "Configuring the external database..."
+  log_print INFO "Downloading the database driver..."
+  if [[ $dbDriverLocation == http* ]]; then
+    downloaded=false
+    while [ "$downloaded" = false ]; do
+      log_print INFO "Downloading file..."
+      export OLDPWD=$PWD
+      cd "$PROACTIVE_DEFAULT/addons"
+      curl -k -J -LO "$dbDriverLocation"
+      if [ $? -eq 0 ]; then
+        downloaded=true
+        log_print INFO "File downloaded successfully."
+      else
+        log_print INFO "Download failed. Retrying in 5 seconds..."
+        sleep 5
+      fi
+    done
+    cd - >/dev/null
+  else
+    mv $dbDriverLocation "$PROACTIVE_DEFAULT/addons"
+  fi
+
+  log_print INFO "Applying the custom database configuration..."
+  declare -a databases=("scheduler" "rm" "catalog" "service-automation" "notification")
+  if [[ $dbApplySchedulerConfigToALL == "false" ]]; then
+    for db in "${databases[@]}"; do
+      if [[ $db == "scheduler" ]]; then
+        configure_db $db $dbType $dbSchedulerHostname $dbSchedulerPort $dbSchedulerUsername $dbSchedulerPassword $dbSchedulerDialect $dbSchedulerSchemaName $dbSchedulerUrl
+      fi
+      if [[ $db == "rm" ]]; then
+        configure_db $db $dbType $dbRmHostname $dbRmPort $dbRmUsername $dbRmPassword $dbRmDialect $dbRmSchemaName $dbRmUrl
+      fi
+      if [[ $db == "catalog" ]]; then
+        configure_db $db $dbType $dbCatalogHostname $dbCatalogPort $dbCatalogUsername $dbCatalogPassword $dbCatalogDialect $dbCatalogSchemaName $dbCatalogUrl
+      fi
+      if [[ $db == "service-automation" ]]; then
+        configure_db $db $dbType $dbPsaHostname $dbPsaPort $dbPsaUsername $dbPsaPassword $dbPsaDialect $dbPsaSchemaName $dbPsaUrl
+      fi
+      if [[ $db == "notification" ]]; then
+        configure_db $db $dbType $dbNotificationHostname $dbNotificationPort $dbNotificationUsername $dbNotificationPassword $dbNotificationDialect $dbNotificationSchemaName $dbNotificationUrl
+      fi
+    done
+  else
+    configure_db "all" $dbType $dbSchedulerHostname $dbSchedulerPort $dbSchedulerUsername $dbSchedulerPassword $dbSchedulerDialect $dbSchedulerSchemaName $dbSchedulerUrl
+  fi
+fi
 
 if [ "$enableLdapConfiguration" == "true" ]; then
   log_print INFO "Configuring LDAP authentication..."

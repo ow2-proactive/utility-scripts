@@ -9,7 +9,7 @@
     "systemUserPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
     "networkProtocol": "pamr",
     "webProtocol": "http",
-    "webPort": "443",
+    "webPort": "8080",
     "historyPeriodDays": "60",
     "serverDNSName": "XX.XX.XX.XX",
     "certificatePath": "/absolut/path/to/proactive.crt",
@@ -17,21 +17,72 @@
     "certificateKeyStorePassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
     "proactiveAdminPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
     "localNodes": "0",
-    "addExternalNodeSources": "true",
-    "enableLdapConfiguration": "true"
+    "addExternalNodeSources": "false",
+    "enableCustomDbConfig": "false",
+    "enableLdapConfiguration": "false"
   },
   "ldapConfiguration": {
-    "serverUrls" : "ldaps://ldap-server.westus2.cloudapp.azure.com",
-    "userSubtree" : "ou=users,dc=activeeon-microsoft,dc=org",
-    "groupSubtree" : "ou=groups,dc=activeeon-microsoft,dc=org",
-    "bindLogin" : "cn=admin,dc=activeeon-microsoft,dc=org",
-    "bindPassword" : "jA0ECQMCMlIuxtErGLL30kMB2IdRpj+e299SW6h79aqmiPtAD9CsgEf9TwsH6LBoRbLEcZXwFcMn8TCxn0gZ0eWhkCQPAZ1DNnvJcSBC1yn0at9I",
-    "userFilter" : "(&(objectclass=inetOrgPerson)(uid=%s))",
-    "groupFilter" : "(&(objectclass=groupOfUniqueNames)(uniqueMember=%s))",
-    "testLogin" : "viale",
-    "testPassword" : "jA0ECQMC64bQy3YO0UX30kEB8VKsVq35OgP/fgZqyaRbuDjU9KPC2vZ+wNDf9t6aC2PiJGZlgfqcWhCoH91yp9ufkPS7DHZ7zTPvoT1AOdYQbQ==",
-    "adminRoles" : "activeeon-admins",
-    "userRoles" : "testGroup"
+    "serverUrls": "ldaps://ldap-server-test.westus2.cloudapp.azure.com",
+    "userSubtree": "ou=users,dc=activeeon-microsoft,dc=org",
+    "groupSubtree": "ou=groups,dc=activeeon-microsoft,dc=org",
+    "bindLogin": "cn=admin,dc=activeeon-microsoft,dc=org",
+    "bindPassword": "jA0ECQMCMlIuxtErGLL30kMB2IdRpj+e299SW6h79aqmiPtAD9CsgEf9TwsH6LBoRbLEcZXwFcMn8TCxn0gZ0eWhkCQPAZ1DNnvJcSBC1yn0at9I",
+    "userFilter": "(&(objectclass=inetOrgPerson)(uid=%s))",
+    "groupFilter": "(&(objectclass=groupOfUniqueNames)(uniqueMember=%s))",
+    "testLogin": "proactive",
+    "testPassword": "jA0ECQMC64bQy3YO0UX30kEB8VKsVq35OgP/fgZqyaRbuDjU9KPC2vZ+wNDf9t6aC2PiJGZlgfqcWhCoH91yp9ufkPS7DHZ7zTPvoT1AOdYQbQ==",
+    "adminRoles": "activeeon-admins",
+    "userRoles": "testGroup"
+  },
+  "dbConfiguration": {
+    "type": "postgresql",
+    "driverLocation": "https://jdbc.postgresql.org/download/postgresql-42.2.11.jar",
+    "applySchedulerConfigToALL": "false",
+    "schedulerDbConfig": {
+      "hostname": "localhost",
+      "port": "5432",
+      "username": "scheduler",
+      "password": "jA0ECQMCt10YLAjv/3zj0j4Bb15ozyLkspTr4abPyxDE01HJLeNC9W6YCMjsXYH8f2c5IZZy8parNW4uq72lnR5iGYooYlI3XDOJNIvpkA==",
+      "dialect": "default",
+      "schemaName": "default",
+      "url": "default"
+    },
+    "rmDbConfig": {
+      "hostname": "localhost",
+      "port": "5432",
+      "username": "rm",
+      "password": "jA0ECQMC5bPIBu5e27jj0jcBNdiV5AqIyR1IUvAwD5diODx2W8dLz1ffYRKrPKHBWIXH4mv81GaI0hZ2p/f0NHiQ+TDigwLm",
+      "dialect": "default",
+      "schemaName": "default",
+      "url": "default"
+    },
+    "catalogDbConfig": {
+      "hostname": "localhost",
+      "port": "5432",
+      "username": "catalog",
+      "password": "jA0ECQMCTRtsQ7VFlfDj0jwBEOnCM/269trx2aCJQ9rwR1RnUmDetWnGPS7lUTTfyU2LqNtRDP0JQbUkHrHHgIYQ/SEPtKfYHRt2sgk=",
+      "dialect": "default",
+      "schemaName": "default",
+      "url": "default"
+    },
+    "psaDbConfig": {
+      "hostname": "localhost",
+      "port": "5432",
+      "username": "pca",
+      "password": "jA0ECQMCY2K1vheYoArj0jgBBYcaW6BqU3N6d8oLWIP+VijqaMDmJVK1aMNGC0oWY33R/mvD0nT4MEW+P7jkNFQZUi8YN3ddiw==",
+      "dialect": "default",
+      "schemaName": "default",
+      "url": "default"
+    },
+    "notificationDbConfig": {
+      "hostname": "localhost",
+      "port": "5432",
+      "username": "notification",
+      "password": "jA0ECQMCyF/vk+fd8e/j0kEBxDaHzypTT05Le9NETJTT1E4NuCgALhd+BzXLtF9g5pBFcdgj482vM5ewWySRQQ7w0e22BbMNdedWkpv68IwQ1w==",
+      "dialect": "default",
+      "schemaName": "default",
+      "url": "default"
+    }
   },
   "nodesConfiguration": [
     {
