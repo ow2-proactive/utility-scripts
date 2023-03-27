@@ -1,6 +1,6 @@
 {
   "serverConfiguration": {
-    "archiveLocation": "LINK_TO_PROACTIVE_ZIP",
+    "archiveLocation": "absolut_path_to_proactive.zip_or_https_link",
     "passphrase": "changeme",
     "libraries": "rsync,wget,curl,zip,unzip,sshpass,openssl,gpg,passwd",
     "installationDirectory": "/opt/proactive",
@@ -8,8 +8,8 @@
     "systemUserGroup": "proactive",
     "systemUserPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
     "networkProtocol": "pamr",
-    "webProtocol": "https",
-    "webPort": "8443",
+    "webProtocol": "http",
+    "webPort": "443",
     "historyPeriodDays": "60",
     "serverDNSName": "XX.XX.XX.XX",
     "certificatePath": "/absolut/path/to/proactive.crt",
@@ -17,45 +17,63 @@
     "certificateKeyStorePassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
     "proactiveAdminPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
     "localNodes": "0",
-    "addExternalNodeSources": "true"
+    "addExternalNodeSources": "true",
+    "enableLdapConfiguration": "true"
+  },
+  "ldapConfiguration": {
+    "serverUrls" : "ldaps://ldap-server.westus2.cloudapp.azure.com",
+    "userSubtree" : "ou=users,dc=activeeon-microsoft,dc=org",
+    "groupSubtree" : "ou=groups,dc=activeeon-microsoft,dc=org",
+    "bindLogin" : "cn=admin,dc=activeeon-microsoft,dc=org",
+    "bindPassword" : "jA0ECQMCMlIuxtErGLL30kMB2IdRpj+e299SW6h79aqmiPtAD9CsgEf9TwsH6LBoRbLEcZXwFcMn8TCxn0gZ0eWhkCQPAZ1DNnvJcSBC1yn0at9I",
+    "userFilter" : "(&(objectclass=inetOrgPerson)(uid=%s))",
+    "groupFilter" : "(&(objectclass=groupOfUniqueNames)(uniqueMember=%s))",
+    "testLogin" : "viale",
+    "testPassword" : "jA0ECQMC64bQy3YO0UX30kEB8VKsVq35OgP/fgZqyaRbuDjU9KPC2vZ+wNDf9t6aC2PiJGZlgfqcWhCoH91yp9ufkPS7DHZ7zTPvoT1AOdYQbQ==",
+    "adminRoles" : "activeeon-admins",
+    "userRoles" : "testGroup"
   },
   "nodesConfiguration": [
     {
-      "name": "twoHostsSSH",
-      "type": "ssh",
+      "name": "NS-SSH-parmssh",
+      "type": "SSHV2-pamrssh",
       "hosts": [
         {
           "hostnameOrIpAddress": "XX.XX.XX.XX",
-          "nodesNumber": "1"
-        },
-        {
-          "hostnameOrIpAddress": "XX.XX.XX.XX",
-          "nodesNumber": "1"
+          "nodesNumber": "4"
         }
       ],
+      "portRange": "30000-30500",
       "osFamily": "debian",
-      "sshUserName": "activeeon",
-      "sshPassword": "jA0ECQMCVVNivdksiTPr0j0B+nNqpzErtOjB8qTT3AMnxyzPamxodofweOtMVrexh7LtrpPC+51VBgQYYVQLLckemZnYH309xHJG+qr8",
-      "sudoUser": "activeeon",
-      "sudoUserPassword": "jA0ECQMCVVNivdksiTPr0j0B+nNqpzErtOjB8qTT3AMnxyzPamxodofweOtMVrexh7LtrpPC+51VBgQYYVQLLckemZnYH309xHJG+qr8",
+      "sshUserName": "proactive",
+      "sshUserGroup": "proactive",
+      "sshPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
+      "sshUserHomeDir": "/home/proactive",
+      "sudoUser": "ubuntu",
+      "sudoUserPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
+      "installAllDependencies": "true",
       "libraries": "python3,python3-pip",
       "python3Modules": "py4j",
       "additionalInstallationCommand": "echo 'test'"
     },
     {
-      "name": "oneHostSSH",
-      "type": "ssh",
+      "name": "NS-SSH-pamr",
+      "type": "SSHV2-pamr",
       "hosts": [
         {
           "hostnameOrIpAddress": "XX.XX.XX.XX",
-          "nodesNumber": "1"
+          "nodesNumber": "4"
         }
       ],
+      "portRange": "30000-30500",
       "osFamily": "debian",
-      "sshUserName": "activeeon",
-      "sshPassword": "jA0ECQMCVVNivdksiTPr0j0B+nNqpzErtOjB8qTT3AMnxyzPamxodofweOtMVrexh7LtrpPC+51VBgQYYVQLLckemZnYH309xHJG+qr8",
-      "sudoUser": "activeeon",
-      "sudoUserPassword": "jA0ECQMCVVNivdksiTPr0j0B+nNqpzErtOjB8qTT3AMnxyzPamxodofweOtMVrexh7LtrpPC+51VBgQYYVQLLckemZnYH309xHJG+qr8",
+      "sshUserName": "proactive",
+      "sshUserGroup": "proactive",
+      "sshPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
+      "sshUserHomeDir": "/home/proactive",
+      "sudoUser": "ubuntu",
+      "sudoUserPassword": "jA0ECQMCMH3ZzJzCY2Pu0j4BYAnaCM68MbjvX5ltAbdOIol3pJI6lHLM1pfCW2w0dYFyOdFRF4KDhUy3KxdQ6dOHLKsWWHWccG4tHV627g==",
+      "installAllDependencies": "true",
       "libraries": "python3,python3-pip",
       "python3Modules": "py4j",
       "additionalInstallationCommand": "echo 'test'"
