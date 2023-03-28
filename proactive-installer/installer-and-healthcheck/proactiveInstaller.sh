@@ -235,23 +235,23 @@ if [ "$enableCustomDbConfig" == "true" ]; then
   if [[ $dbApplySchedulerConfigToALL == "false" ]]; then
     for db in "${databases[@]}"; do
       if [[ $db == "scheduler" ]]; then
-        configure_db $db $dbType $dbSchedulerHostname $dbSchedulerPort $dbSchedulerUsername $dbSchedulerPassword $dbSchedulerDialect $dbSchedulerSchemaName $dbSchedulerUrl
+        configure_db $db $dbType $dbSchedulerHostname $dbSchedulerPort $dbSchedulerUsername $dbSchedulerPasswordDecrypted $dbSchedulerDialect $dbSchedulerSchemaName $dbSchedulerUrl
       fi
       if [[ $db == "rm" ]]; then
-        configure_db $db $dbType $dbRmHostname $dbRmPort $dbRmUsername $dbRmPassword $dbRmDialect $dbRmSchemaName $dbRmUrl
+        configure_db $db $dbType $dbRmHostname $dbRmPort $dbRmUsername $dbRmPasswordDecrypted $dbRmDialect $dbRmSchemaName $dbRmUrl
       fi
       if [[ $db == "catalog" ]]; then
-        configure_db $db $dbType $dbCatalogHostname $dbCatalogPort $dbCatalogUsername $dbCatalogPassword $dbCatalogDialect $dbCatalogSchemaName $dbCatalogUrl
+        configure_db $db $dbType $dbCatalogHostname $dbCatalogPort $dbCatalogUsername $dbCatalogPasswordDecrypted $dbCatalogDialect $dbCatalogSchemaName $dbCatalogUrl
       fi
       if [[ $db == "service-automation" ]]; then
-        configure_db $db $dbType $dbPsaHostname $dbPsaPort $dbPsaUsername $dbPsaPassword $dbPsaDialect $dbPsaSchemaName $dbPsaUrl
+        configure_db $db $dbType $dbPsaHostname $dbPsaPort $dbPsaUsername $dbPsaPasswordDecrypted $dbPsaDialect $dbPsaSchemaName $dbPsaUrl
       fi
       if [[ $db == "notification" ]]; then
-        configure_db $db $dbType $dbNotificationHostname $dbNotificationPort $dbNotificationUsername $dbNotificationPassword $dbNotificationDialect $dbNotificationSchemaName $dbNotificationUrl
+        configure_db $db $dbType $dbNotificationHostname $dbNotificationPort $dbNotificationUsername $dbNotificationPasswordDecrypted $dbNotificationDialect $dbNotificationSchemaName $dbNotificationUrl
       fi
     done
   else
-    configure_db "all" $dbType $dbSchedulerHostname $dbSchedulerPort $dbSchedulerUsername $dbSchedulerPassword $dbSchedulerDialect $dbSchedulerSchemaName $dbSchedulerUrl
+    configure_db "all" $dbType $dbSchedulerHostname $dbSchedulerPort $dbSchedulerUsername $dbSchedulerPasswordDecrypted $dbSchedulerDialect $dbSchedulerSchemaName $dbSchedulerUrl
   fi
 fi
 
@@ -488,6 +488,7 @@ if [ "$addExternalNodeSources" == "true" ]; then
     nodeConfig=$(cat inputConfig.json | jq -r '.nodesConfiguration['$i']')
     nodeName=$(echo $nodeConfig | jq -r '.name')
     nodeType=$(echo $nodeConfig | jq -r '.type')
+    nodeServerAddress=$(echo $nodeConfig | jq -r '.serverAddress')
     nodePortRange=$(echo $nodeConfig | jq -r '.portRange')
     nodeOsFamily=$(echo $nodeConfig | jq -r '.osFamily')
     nodeSshUserName=$(echo $nodeConfig | jq -r '.sshUserName')
@@ -527,6 +528,10 @@ if [ "$addExternalNodeSources" == "true" ]; then
       chmod 644 "$installationDirectory"/.ssh/id_rsa.pub
       chmod 600 "$installationDirectory"/.ssh/authorized_keys
       chown -R "$systemUser:$systemUserGroup" "$installationDirectory"/.ssh
+    fi
+
+    if [ "$nodeServerAddress" == "default" ]; then
+      nodeServerAddress=$serverDNSName
     fi
 
     for ((j = 0; j < $numberOfHosts; j++)); do
@@ -574,12 +579,12 @@ if [ "$addExternalNodeSources" == "true" ]; then
 
     log_print INFO "Adding the Node Sources..."
     if [ "$nodeType" == "SSHV2-pamr" ]; then
-      su "$systemUser" -c "${PROACTIVE_DEFAULT}/bin/proactive-client -k -u $webProtocol://$serverDNSName:$webPort/rest/ -l admin -p $proactiveAdminPasswordDecrypted --createns $nodeName -infrastructure org.ow2.proactive.resourcemanager.nodesource.infrastructure.SSHInfrastructureV2 /tmp/hostlist.txt 60000 5 5000 22 '$nodeSshUserName' '$nodeSshPasswordDecrypted' '' '' '' '' 'Linux' '-Dproactive.net.nolocal=true -Dproactive.communication.protocol=$networkProtocol -Dproactive.useIPaddress=true  -Dproactive.pamr.router.address=$serverDNSName' 'useNodeJarStartupScript' '$webProtocol://$serverDNSName:$webPort/rest/node.jar' '' 'mkdir -p /tmp/node && cd /tmp/node; if ! type -p jre/bin/java; then wget -nv -N https://s3.amazonaws.com/ci-materials/Latest_jre/jre-8u312b07-linux-x64.tar.gz; tar -xf jre-8u312b07-linux-x64.tar.gz; mv jre1.8.0_312b07/ jre; fi; wget --no-check-certificate -nv -O node.jar %nodeJarUrl%; rm -rf lib; %detachedModePrefix% jre/bin/java -jar node.jar %javaOptions% -Dpython.path=%jythonPath% -r %rmUrl% -n %nodeName% -s %nodeSourceName% -w %numberOfNodesPerInstance% -v %credentials% &' -policy org.ow2.proactive.resourcemanager.nodesource.policy.RestartDownNodesPolicy 'ALL' 'ME' '1800000' -X"
+      su "$systemUser" -c "${PROACTIVE_DEFAULT}/bin/proactive-client -k -u $webProtocol://$serverDNSName:$webPort/rest/ -l admin -p $proactiveAdminPasswordDecrypted --createns $nodeName -infrastructure org.ow2.proactive.resourcemanager.nodesource.infrastructure.SSHInfrastructureV2 /tmp/hostlist.txt 60000 5 5000 22 '$nodeSshUserName' '$nodeSshPasswordDecrypted' '' '' '' '' 'Linux' '-Dproactive.net.nolocal=true -Dproactive.communication.protocol=$networkProtocol -Dproactive.useIPaddress=true  -Dproactive.pamr.router.address=$nodeServerAddress' 'useNodeJarStartupScript' '$webProtocol://$serverDNSName:$webPort/rest/node.jar' '' 'rm -rf /tmp/node && mkdir -p /tmp/node && cd /tmp/node; if ! type -p jre/bin/java; then wget -nv -N https://s3.amazonaws.com/ci-materials/Latest_jre/jre-8u312b07-linux-x64.tar.gz; tar -xf jre-8u312b07-linux-x64.tar.gz; mv jre1.8.0_312b07/ jre; fi; wget --no-check-certificate -nv -O node.jar %nodeJarUrl%; rm -rf lib; %detachedModePrefix% jre/bin/java -jar node.jar %javaOptions% -Dpython.path=%jythonPath% -r %rmUrl% -n %nodeName% -s %nodeSourceName% -w %numberOfNodesPerInstance% -v %credentials% &' -policy org.ow2.proactive.resourcemanager.nodesource.policy.RestartDownNodesPolicy 'ALL' 'ME' '1800000' -X"
       log_print INFO "Node Source '$nodeName' successfully created"
     fi
 
     if [ "$nodeType" == "SSHV2-pamrssh" ]; then
-      su "$systemUser" -c "${PROACTIVE_DEFAULT}/bin/proactive-client -k -u $webProtocol://$serverDNSName:$webPort/rest/ -l admin -p $proactiveAdminPasswordDecrypted --createns $nodeName -infrastructure org.ow2.proactive.resourcemanager.nodesource.infrastructure.SSHInfrastructureV2 /tmp/hostlist.txt 60000 5 5000 22 '$nodeSshUserName' '$nodeSshPasswordDecrypted' '' '' '' '' 'Linux' '-Dproactive.net.nolocal=true -Dproactive.communication.protocol=$networkProtocol -Dproactive.useIPaddress=true  -Dproactive.pamr.router.address=$serverDNSName -Dproactive.pamrssh.key_directory=$nodeSshUserHomeDir/ssh -Djava.net.preferIPv4Stack=true -Dproactive.pamr.socketfactory=ssh -Dproactive.pamrssh.username=$nodeSshUserName' 'useNodeJarStartupScript' '$webProtocol://$serverDNSName:$webPort/rest/node.jar' '' 'mkdir -p /tmp/node && cd /tmp/node; if ! type -p jre/bin/java; then wget -nv -N https://s3.amazonaws.com/ci-materials/Latest_jre/jre-8u312b07-linux-x64.tar.gz; tar -xf jre-8u312b07-linux-x64.tar.gz; mv jre1.8.0_312b07/ jre; fi; wget --no-check-certificate -nv -O node.jar %nodeJarUrl%; rm -rf lib; %detachedModePrefix% jre/bin/java -jar node.jar %javaOptions% -Dpython.path=%jythonPath% -r %rmUrl% -n %nodeName% -s %nodeSourceName% -w %numberOfNodesPerInstance% -v %credentials% &' -policy org.ow2.proactive.resourcemanager.nodesource.policy.RestartDownNodesPolicy 'ALL' 'ME' '1800000' -X"
+      su "$systemUser" -c "${PROACTIVE_DEFAULT}/bin/proactive-client -k -u $webProtocol://$serverDNSName:$webPort/rest/ -l admin -p $proactiveAdminPasswordDecrypted --createns $nodeName -infrastructure org.ow2.proactive.resourcemanager.nodesource.infrastructure.SSHInfrastructureV2 /tmp/hostlist.txt 60000 5 5000 22 '$nodeSshUserName' '$nodeSshPasswordDecrypted' '' '' '' '' 'Linux' '-Dproactive.net.nolocal=true -Dproactive.communication.protocol=$networkProtocol -Dproactive.useIPaddress=true  -Dproactive.pamr.router.address=$nodeServerAddress -Dproactive.pamrssh.key_directory=$nodeSshUserHomeDir/ssh -Djava.net.preferIPv4Stack=true -Dproactive.pamr.socketfactory=ssh -Dproactive.pamrssh.username=$nodeSshUserName' 'useNodeJarStartupScript' '$webProtocol://$serverDNSName:$webPort/rest/node.jar' '' 'rm -rf /tmp/node && mkdir -p /tmp/node && cd /tmp/node; if ! type -p jre/bin/java; then wget -nv -N https://s3.amazonaws.com/ci-materials/Latest_jre/jre-8u312b07-linux-x64.tar.gz; tar -xf jre-8u312b07-linux-x64.tar.gz; mv jre1.8.0_312b07/ jre; fi; wget --no-check-certificate -nv -O node.jar %nodeJarUrl%; rm -rf lib; %detachedModePrefix% jre/bin/java -jar node.jar %javaOptions% -Dpython.path=%jythonPath% -r %rmUrl% -n %nodeName% -s %nodeSourceName% -w %numberOfNodesPerInstance% -v %credentials% &' -policy org.ow2.proactive.resourcemanager.nodesource.policy.RestartDownNodesPolicy 'ALL' 'ME' '1800000' -X"
       log_print INFO "Node Source '$nodeName' successfully created"
     fi
 

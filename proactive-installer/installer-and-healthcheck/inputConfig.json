@@ -94,6 +94,7 @@
           "nodesNumber": "4"
         }
       ],
+      "serverAddress": "default",
       "portRange": "30000-30500",
       "osFamily": "debian",
       "sshUserName": "proactive",
@@ -116,6 +117,7 @@
           "nodesNumber": "4"
         }
       ],
+      "serverAddress": "default",
       "portRange": "30000-30500",
       "osFamily": "debian",
       "sshUserName": "proactive",
