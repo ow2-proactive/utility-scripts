@@ -593,7 +593,7 @@ if [ "$addExternalNodeSources" == "true" ]; then
       for ((j = 0; j < $numberOfHosts; j++)); do
         hostnameOrIpAddress=$(echo $hostsConfig | jq -r '.['$j'].hostnameOrIpAddress')
         IFS=- read -r portMin portMax <<<$nodePortRange
-        sshpass -p $nodeSshPasswordDecrypted ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $nodeSshUserName@$hostnameOrIpAddress "mkdir /tmp/node/config; echo '$portMin	$portMax' > /tmp/node/config/pca_services_port_range"
+        sshpass -p $nodeSshPasswordDecrypted ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $nodeSshUserName@$hostnameOrIpAddress "mkdir -p /tmp/node/config; echo '$portMin	$portMax' > /tmp/node/config/pca_services_port_range"
       done
     fi
 
