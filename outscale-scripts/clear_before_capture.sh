@@ -12,12 +12,12 @@ STARTTIME=$(date +%s)
 PID=$(echo $$)
 EXITCODE=$PID
 DATE=$(date)
-LOGFILE="/var/log/clear-instance.$PID.log"
+LOGFILE="/tmp/clear-instance.$PID.log"
 
 
 if [ "$EUID" -ne 0 ]; then
 	echo "Please run as root"
-	exit 1000;
+	exit 101;
 fi
 
 # Set up the logging for the script
@@ -90,7 +90,7 @@ sed -i '/dhclient-script/d' /etc/ntp.conf
 log_print INFO "Clear osc"
 /bin/rm -f /var/osc/*
 
-log_print INFO "clear authorized_keys"
+log_print INFO "Clear authorized_keys"
 /bin/rm -f ~/.ssh/authorized_keys
 /bin/rm -f /home/outscale/.ssh/authorized_keys
 
@@ -105,7 +105,7 @@ log_print INFO "Clear history"
 history -c
 
 
-log_print INFO "Instance cleared, please execute the following commands before capturing the images: \n\"sudo /bin/rm $LOGFILE\"\n\"history -c\" (from all the users you used)"
+log_print INFO "Instance cleared, commands to be excuted: \n\"sudo /bin/rm $LOGFILE\"\n\"history -c\" (from all the users you used)"
 
 newline "FINISHED"
 # Declare configuration done successfully

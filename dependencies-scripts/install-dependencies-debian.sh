@@ -152,15 +152,15 @@ log_print INFO "Installing git"
 sudo apt-get install -y git || log_print WARN "git installation failed!"
 
 # Install jq
-log_print INFO "Installing git"
+log_print INFO "Installing jq"
 sudo apt-get install -y jq || log_print WARN "jq installation failed!"
 
 # Install zip
-log_print INFO "Installing git"
+log_print INFO "Installing zip"
 sudo apt-get install -y zip || log_print WARN "jq installation failed!"
 
 # Install unzip
-log_print INFO "Installing git"
+log_print INFO "Installing unzip"
 sudo apt-get install -y unzip || log_print WARN "jq installation failed!"
 
 
