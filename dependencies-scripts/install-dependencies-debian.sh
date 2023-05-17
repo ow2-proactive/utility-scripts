@@ -173,7 +173,8 @@ sudo systemctl enable docker
 sudo systemctl status docker
 sudo systemctl start docker
 
-sudo usermod -a -G docker $USER
+log_print INFO "Adding user $(whoami) to the docker group"
+sudo usermod -a -G docker $(whoami)
 
 #Check if user proactive exist and add it to docker group if so
 if id -u "proactive" >/dev/null 2>&1; then
