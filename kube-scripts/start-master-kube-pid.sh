@@ -59,7 +59,7 @@ log_print ERROR "USER ubuntu is not found"
 fi
 
 log_print INFO "Setting  flannel"
-sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
 log_print INFO "Getting the token for the cluster"
 kubeadm token create $(kubeadm token generate) --print-join-command --ttl=1h >  /tmp/join_call.txt
