@@ -13,7 +13,7 @@ confirmation_prompt() {
 echo "Executing script $0"
 
 # Check if all three arguments are provided
-if [ "$#" -eq 3 ]; then
+if [[ "$#" -eq 3 ]]; then
   platform="$1"
   login="$2"
   pwd="$3"
@@ -44,7 +44,7 @@ get_all_calendars_response=$(curl -s -w "%{http_code}" -X GET "$platform/catalog
 http_status="${get_all_calendars_response: -3}"
 all_calendars="${get_all_calendars_response:0:-3}"
 
-if [ "$http_status" -eq 200 ]; then
+if [[ "$http_status" -eq 200 ]]; then
   echo "Successfully retrieved all calendars ..."
   while IFS= read -r calendar; do
     all_calendars_names_from_server_array+=("$calendar")
@@ -56,7 +56,7 @@ fi
 
 # DELETE all associations
 delete_associations=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE --header 'Accept: */*' --header "sessionid: $sessionid" "$platform/job-planner/planned_jobs")
-if [ $delete_associations -eq 200 ]; then
+if [[ $delete_associations -eq 200 ]]; then
   echo "Successfully deleted all associations ..."
 else
   echo "DELETE all associations failed with HTTP status code: $delete_associations"
@@ -68,7 +68,7 @@ for calendar_name_from_server in "${all_calendars_names_from_server_array[@]}"; 
   echo "Deleting calendar $calendar_name_from_server"
   encoded_calendar_name=$(echo "$calendar_name_from_server" | sed -e 's/ /%20/g' -e 's/?/%3F/g')
   delete_calendar_http_code=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$platform/catalog/buckets/calendars/resources/$encoded_calendar_name" -H 'Accept: */*' -H "sessionID: $sessionid")
-  if [ $delete_associations -ne 200 ]; then
+  if [[ $delete_associations -ne 200 ]]; then
     echo "Deletion of calendar $encoded_calendar_name FAILED with HTTP code $delete_calendar_http_code"
   fi
 done
@@ -86,7 +86,7 @@ for cron in "${crons[@]}"; do
 
   # Execute the curl to create the calendar
   create_calendar_http_code=$("/$current_dir/curl-create-calendar.sh" "$platform" "$catalog_friendly_cron_name_encoded" "$actual_java_cron" "$sessionid")
-  if [ $create_calendar_http_code -eq 201 ]; then
+  if [[ $create_calendar_http_code -eq 201 ]]; then
     echo "Calendar $catalog_friendly_cron_name successfully created"
   else
     echo "Error when creating calendar $catalog_friendly_cron_name, HTTP response code $catalog_friendly_cron_name"
@@ -97,7 +97,7 @@ for cron in "${crons[@]}"; do
     while [ $counter -lt $numberOfAssociationsPerWorkflow ]; do
       rqbody="{\"calendar_bucket\": \"calendars\", \"calendar_name\": \"cron_"$catalog_friendly_cron_name"\", \"status\": \""$associationStatus"\", \"variables\": {}, \"workflow_bucket\": \"basic-examples\", \"workflow_name\": \"$workflow\"}"
       create_association_http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header "sessionid:$sessionid" -d "$rqbody" "$platform/job-planner/planned_jobs")
-      if [ $create_association_http_code -eq 201 ]; then
+      if [[ $create_association_http_code -eq 201 ]]; then
         echo "Association of workflow $workflow to calendar $catalog_friendly_cron_name successful"
       else
         echo "Error when creating calendar $catalog_friendly_cron_name, HTTP response code $create_association_http_code"
