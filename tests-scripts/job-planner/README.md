@@ -17,6 +17,17 @@ The load level is defined by users in a config file.
       "associationStatus": "DEACTIVATED"
   }
   ```
+
+  ### Example:
+    ```json
+    {
+        "crons": ["*_*_*_*_*_*", "0_*_*_?_*_*"],
+        "workflows": ["Native_Task"],
+        "numberOfAssociationsPerWorkflow": 1,
+        "associationStatus": "DEACTIVATED"
+    }
+    ```
+
   ### Parameters Explanation:
   - ```"crons"``` Holds the list of calendars. Each calendar is defined by a [Quartz Cron](https://www.quartz-scheduler.org/)
   with an important difference in syntax. Spaces ```" "``` are replaced by Underscores ```"_"```.
