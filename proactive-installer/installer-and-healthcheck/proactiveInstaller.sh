@@ -469,12 +469,19 @@ log_print INFO "Starting the ProActive Server..."
 log_print INFO "If a problem occurs, check output in /var/log/proactive/scheduler."
 service proactive-scheduler start
 
-log_print INFO "Waiting for the ProActive Server to be up before adding Node Sources..."
+log_print INFO "Waiting for the ProActive Server to be up..."
 until curl -s --insecure --head --request GET $webProtocol://$serverDNSName:$webPort | grep "200 OK" >/dev/null; do
   sleep 5
 done
 
 log_print INFO "ProActive Server started at: $webProtocol://$serverDNSName:$webPort"
+
+log_print INFO "Waiting for the ProActive Packages to be completely loaded..."
+until [ -f $PROACTIVE_DEFAULT/samples/loading/packages.loaded ]; do
+  sleep 5
+done
+
+log_print INFO "ProActive Packages are loaded."
 
 if [ "$addExternalNodeSources" == "true" ]; then
 
