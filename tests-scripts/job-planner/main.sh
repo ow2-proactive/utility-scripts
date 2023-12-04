@@ -42,7 +42,7 @@ echo "Associations will be created with the status $associationStatus ..."
 all_calendars_names_from_server_array=()
 get_all_calendars_response=$(curl -s -w "%{http_code}" -X GET "$platform/catalog/buckets/calendars/resources?pageNo=0&pageSize=2147483647" -H 'Accept: */*' -H "sessionID: $sessionid")
 http_status="${get_all_calendars_response: -3}"
-all_calendars="${get_all_calendars_response:0:-3}"
+all_calendars=$(expr "$get_all_calendars_response" : '\(.*\)...')
 
 if [[ "$http_status" -eq 200 ]]; then
   echo "Successfully retrieved all calendars ..."
@@ -68,7 +68,7 @@ for calendar_name_from_server in "${all_calendars_names_from_server_array[@]}"; 
   echo "Deleting calendar $calendar_name_from_server"
   encoded_calendar_name=$(echo "$calendar_name_from_server" | sed -e 's/ /%20/g' -e 's/?/%3F/g')
   delete_calendar_http_code=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$platform/catalog/buckets/calendars/resources/$encoded_calendar_name" -H 'Accept: */*' -H "sessionID: $sessionid")
-  if [[ $delete_associations -ne 200 ]]; then
+  if [[ $delete_calendar_http_code -ne 200 ]]; then
     echo "Deletion of calendar $encoded_calendar_name FAILED with HTTP code $delete_calendar_http_code"
   fi
 done
@@ -89,7 +89,7 @@ for cron in "${crons[@]}"; do
   if [[ $create_calendar_http_code -eq 201 ]]; then
     echo "Calendar $catalog_friendly_cron_name successfully created"
   else
-    echo "Error when creating calendar $catalog_friendly_cron_name, HTTP response code $catalog_friendly_cron_name"
+    echo "Error when creating calendar $catalog_friendly_cron_name, HTTP response code $create_calendar_http_code"
   fi
 
   for workflow in "${workflows[@]}"; do
