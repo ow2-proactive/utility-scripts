@@ -40,9 +40,11 @@ echo "Associations will be created with the status $associationStatus ..."
 
 # Retrieve all calendars from the calendars bucket
 all_calendars_names_from_server_array=()
-get_all_calendars_response=$(curl -s -w "%{http_code}" -X GET "$platform/catalog/buckets/calendars/resources?pageNo=0&pageSize=2147483647" -H 'Accept: */*' -H "sessionID: $sessionid")
-http_status="${get_all_calendars_response: -3}"
-all_calendars=$(expr "$get_all_calendars_response" : '\(.*\)...')
+get_all_calendars_response=$(curl -s -w "\n%{http_code}" -X GET "$platform/catalog/buckets/calendars/resources?pageNo=0&pageSize=2147483647" -H 'Accept: */*' -H "sessionID: $sessionid")
+
+# Split the response and the HTTP status code
+http_status=$(echo "$get_all_calendars_response" | tail -n1)
+all_calendars=$(echo "$get_all_calendars_response" | sed '$d')
 
 if [[ "$http_status" -eq 200 ]]; then
   echo "Successfully retrieved all calendars ..."
@@ -95,12 +97,20 @@ for cron in "${crons[@]}"; do
   for workflow in "${workflows[@]}"; do
     counter=0
     while [ $counter -lt $numberOfAssociationsPerWorkflow ]; do
-      rqbody="{\"calendar_bucket\": \"calendars\", \"calendar_name\": \"cron_"$catalog_friendly_cron_name"\", \"status\": \""$associationStatus"\", \"variables\": {}, \"workflow_bucket\": \"basic-examples\", \"workflow_name\": \"$workflow\"}"
-      create_association_http_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header "sessionid:$sessionid" -d "$rqbody" "$platform/job-planner/planned_jobs")
-      if [[ $create_association_http_code -eq 201 ]]; then
-        echo "Association of workflow $workflow to calendar $catalog_friendly_cron_name successful"
+      rqbody="{\"calendar_bucket\": \"calendars\", \"calendar_name\": \"cron_"$catalog_friendly_cron_name"\", \"status\": \""$associationStatus"\", \"variables\": {}, \"workflow_bucket\": \"jp-load-test\", \"workflow_name\": \"$workflow\"}"
+      # Create association POST request
+      http_create_association=$(curl -s -w "\n%{http_code}" -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header "sessionid:$sessionid" -d "$rqbody" "$platform/job-planner/planned_jobs")
+
+      # Split the response and the HTTP status code
+      http_code=$(echo "$http_create_association" | tail -n1)
+      response_body=$(echo "$http_create_association" | sed '$d')
+
+      # Check if the request was successful
+      if [[ "$http_code" -eq 200 || "$http_code" -eq 201 ]]; then
+        echo "Successfully created association of workflow $workflow to calendar cron_$catalog_friendly_cron_name with HTTP status code: $http_code"
       else
-        echo "Error when creating calendar $catalog_friendly_cron_name, HTTP response code $create_association_http_code"
+        echo "Failed to create association of workflow $workflow to calendar cron_$catalog_friendly_cron_name with HTTP status code: $http_code"
+        echo "Response from server: $response_body"
       fi
       ((counter++))
     done
