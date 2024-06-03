@@ -21,20 +21,23 @@ The load level is defined by users in a config file.
   ### Example:
     ```json
     {
-        "crons": ["*_*_*_*_*_*", "0_*_*_?_*_*"],
-        "workflows": ["Native_Task"],
-        "numberOfAssociationsPerWorkflow": 1,
-        "associationStatus": "DEACTIVATED"
+      "crons": {
+          "calendars": ["0_*_*_?_*_*","0_0/1_*_?_*_*","0_0/2_*_?_*_*","0_0/3_*_?_*_*","0_0/4_*_?_*_*","0_0/5_*_?_*_*","0_0/25_*_?_*_*","0_0/45_*_?_*_*"]
+      },
+      "workflows": {
+          "basic-examples": ["Distributed_Computing_Pi","Variables_Propagation"]
+      },
+      "numberOfAssociationsPerWorkflow": 5,
+      "associationStatus": "PLANNED"
     }
     ```
 
   ### Parameters Explanation:
-  - ```"crons"``` Holds the list of calendars. Each calendar is defined by a [Quartz Cron](https://www.quartz-scheduler.org/)
-  with an important difference in syntax. Spaces ```" "``` are replaced by Underscores ```"_"```.
-  Simply add or remove cron expression to create more or less Calendars.
-  - ```"workflows"``` Holds the list of workflows that will be associated to each calendar. Ath the moment,
-  all workflows must be in the basic-examples bucket.
-  - ```"numberOfAssociationsPerWorkflow"``` Defines how many times each workflow should associated to each calendar.
+  - ```"crons"``` Holds a map of **Buckets** with **Calendars**. Each calendar is defined by a [Quartz Cron](https://www.quartz-scheduler.org/)
+    with an important difference in syntax. Spaces ```" "``` are replaced by Underscores ```"_"```.
+    Calendars will be created in the specified buckets.
+  - ```"workflows"``` Holds a map of **Buckets** with **Workflows** that will be associated to each calendar.
+  - ```"numberOfAssociationsPerWorkflow"``` Defines how many times each workflow will be associated to each calendar.
   - ```"associationStatus"``` Defines the status for all created associations
 
  ```crons.json``` comes with default values.
