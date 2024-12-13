@@ -20,7 +20,7 @@ set NSSM_ZIP_LOCATION=https://nssm.cc/release/nssm-2.24.zip
 
 REM HTTPS URL or absolute local path to the ProActive node archive.
 REM Use an HTTPS URL if you have internet access, otherwise an absolute local path to the ProActive node archive
-set PROACTIVE_NODE_ZIP_LOCATION=<HTTPS_URL_OR_ABSOLUTE_LOCAL_PATH>
+set PROACTIVE_NODE_ZIP_LOCATION=HTTPS_URL_OR_ABSOLUTE_LOCAL_PATH
 
 REM Absolute local path to the directory where the ProActive node will be installed.
 REM This directory will be created by the script if it doesn't already exist.
@@ -30,17 +30,19 @@ REM Use the built-in LocalSystem account to run the 'proactive-node' service
 set SERVICE_USE_LOCAL_SYSTEM_ACCOUNT=true
 
 REM The username of the account under which the service 'proactive-node' will be executed
-set SERVICE_USER_NAME=<DOMAIN\USERNAME>
+REM The 'SERVICE_USER_NAME' property is ignored if SERVICE_USE_LOCAL_SYSTEM_ACCOUNT=true
+set SERVICE_USER_NAME=DOMAIN\USERNAME
 
 REM The password associated with the service user account
-set SERVICE_USER_PASSWORD=<PASSWORD>
+REM The 'SERVICE_USER_PASSWORD' property is ignored if SERVICE_USE_LOCAL_SYSTEM_ACCOUNT=true
+set SERVICE_USER_PASSWORD=PASSWORD
 
 REM Absolute local path to the 'keys' directory.
 REM Create a directory named 'keys' and add the following files from the ProActive server:
 REM - Public/private key pair from the ProActive server's SSH folder (e.g., located in ~/.ssh/).
 REM - The 'rm.cred' file from '<Server_Installation_Directory>/config/authentication/' for node authentication.
 REM Once these files are added to the 'keys' directory, specify its path below.
-set NODE_SOURCE_KEYS_LOCATION=<ABSOLUTE_LOCAL_PATH_TO_KEYS_DIRECTORY>
+set NODE_SOURCE_KEYS_LOCATION=ABSOLUTE_LOCAL_PATH_TO_KEYS_DIRECTORY
 
 REM Name of the Windows node source.
 REM In the RM portal, create an empty node source with default infrastructure and static policy.
@@ -57,10 +59,10 @@ REM Communication protocol used by ProActive. Default is pamr.
 set NODE_SOURCE_COMMUNICATION_PROTOCOL=pamr
 
 REM Router address of the ProActive server.
-set NODE_SOURCE_ROUTER_ADDRESS=<SCHEDULER_SERVER_DNS_OR_IP>
+set NODE_SOURCE_ROUTER_ADDRESS=SCHEDULER_SERVER_DNS_OR_IP
 
 REM SSH username for ProActive server.
-set NODE_SOURCE_SSH_USERNAME=<SCHEDULER_SSH_USERNAME>
+set NODE_SOURCE_SSH_USERNAME=SCHEDULER_SSH_USERNAME
 
 
 REM *********************************************************************************************
@@ -118,7 +120,7 @@ echo %PROACTIVE_NODE_ZIP_LOCATION% | findstr /i "^http:// ^https://" >nul
 if %errorlevel%==0 (
     REM URL is valid, download the file
     echo Downloading from URL: %PROACTIVE_NODE_ZIP_LOCATION%
-    powershell -Command "Invoke-WebRequest -Uri '%PROACTIVE_NODE_ZIP_LOCATION%' -OutFile '%INSTALLATION_DIRECTORY%\activeeon-windows-node-x64.zip'"
+    curl -k -o "%INSTALLATION_DIRECTORY%\activeeon-windows-node-x64.zip" "%PROACTIVE_NODE_ZIP_LOCATION%"
     if %errorlevel% neq 0 (
         echo Failed to download PROACTIVE_NODE_ZIP. Exiting.
         exit /b 1
@@ -136,7 +138,7 @@ echo %NSSM_ZIP_LOCATION% | findstr /i "^http:// ^https://" >nul
 if %errorlevel%==0 (
     REM URL is valid, download the file
     echo Downloading from URL: %NSSM_ZIP_LOCATION%
-    powershell -Command "Invoke-WebRequest -Uri '%NSSM_ZIP_LOCATION%' -OutFile '%INSTALLATION_DIRECTORY%\nssm-2.24.zip'"
+    curl -k -o "%INSTALLATION_DIRECTORY%\nssm-2.24.zip" "%NSSM_ZIP_LOCATION%"
     if %errorlevel% neq 0 (
         echo Failed to download NSSM_ZIP. Exiting.
         exit /b 1
